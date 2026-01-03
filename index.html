@@ -2830,14 +2830,27 @@ function checkAndMergePages() {
 
 
 
-// Registrar Service Worker si está disponible
+// Registrar y actualizar Service Worker para soporte offline
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('sw.js')
-      .then(function(registration) {
+      .then(registration => {
         console.log('ServiceWorker registrado con éxito:', registration.scope);
+        
+        // Forzar actualización inmediata
+        registration.update();
+        
+        // Verificar actualizaciones cada hora
+        setInterval(() => {
+          registration.update();
+        }, 60 * 60 * 1000);
+        
+        // Escuchar mensajes del Service Worker
+        navigator.serviceWorker.addEventListener('message', event => {
+          console.log('Mensaje del SW:', event.data);
+        });
       })
-      .catch(function(error) {
+      .catch(error => {
         console.log('Error al registrar ServiceWorker:', error);
       });
   });
@@ -2968,4 +2981,5 @@ if ('serviceWorker' in navigator) {
 
 
 </body>
+
 </html>
