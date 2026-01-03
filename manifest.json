@@ -2,12 +2,12 @@
   "name": "Tablagenius",
   "short_name": "Tabla",
   "description": "Editor profesional de tablaturas para guitarra",
-  "start_url": "/",
+  "start_url": "/TablaGenius/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1e5aa8",
   "orientation": "portrait",
-  "scope": "/",
+  "scope": "/TablaGenius/",
   "lang": "es",
   "icons": [
     {
@@ -32,4 +32,5 @@
       "form_factor": "narrow"
     }
   ]
+
 }
