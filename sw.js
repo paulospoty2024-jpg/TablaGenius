@@ -1,10 +1,10 @@
 const CACHE_NAME = 'tablagenius-v2';
 const urlsToCache = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
+  '/TablaGenius/',
+  '/TablaGenius/index.html',
+  '/TablaGenius/manifest.json',
+  '/TablaGenius/icon-192.png',
+  '/TablaGenius/icon-512.png'
 ];
 
 // Instalar y cachear
@@ -68,3 +68,4 @@ self.addEventListener('activate', event => {
     }).then(() => self.clients.claim())
   );
 });
+
