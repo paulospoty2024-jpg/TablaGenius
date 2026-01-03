@@ -1,47 +1,70 @@
-// Service Worker básico para caché
-const CACHE_NAME = 'tablagenius-v1.0';
+const CACHE_NAME = 'tablagenius-v2';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
-// Instalar Service Worker
+// Instalar y cachear
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Cache abierto');
+        console.log('Cache abierto, agregando recursos...');
         return cache.addAll(urlsToCache);
       })
+      .then(() => self.skipWaiting())
   );
 });
 
-// Interceptar peticiones
+// Interceptar todas las peticiones
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Devuelve del caché si existe, sino de la red
-        return response || fetch(event.request);
+        // Si está en caché, devolver
+        if (response) {
+          return response;
+        }
+        
+        // Si no está, buscar en red Y guardar en caché
+        return fetch(event.request).then(response => {
+          // No cachear solicitudes no exitosas
+          if (!response || response.status !== 200 || response.type !== 'basic') {
+            return response;
+          }
+          
+          // Clonar respuesta para guardar en caché
+          const responseToCache = response.clone();
+          
+          caches.open(CACHE_NAME)
+            .then(cache => {
+              cache.put(event.request, responseToCache);
+            });
+            
+          return response;
+        });
+      })
+      .catch(() => {
+        // Si falla todo, mostrar página offline
+        return caches.match('./index.html');
       })
   );
 });
 
-// Actualizar cache cuando haya nueva versión
+// Limpiar cachés viejos
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
+          if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
